@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { calculateAudit } from "../../lib/auditEngine";
 
 export default function AuditForm() {
 
@@ -20,6 +21,8 @@ export default function AuditForm() {
         teamSize: "",
         useCase: "",
     });
+
+    const [result, setResult] = useState(null);
 
     // Load saved data on page load
     useEffect(() => {
@@ -60,7 +63,13 @@ export default function AuditForm() {
         }
 
         console.log("Form submitted:", auditInput);
+
+        const auditResult = calculateAudit(auditInput);
+        setResult(auditResult);
     }
+
+
+
 
     return (
         <main className="min-h-screen bg-gray-950 flex items-center justify-center px-4">
@@ -174,6 +183,14 @@ export default function AuditForm() {
                     </button>
 
                 </form>
+                {result && (
+                    <div className="mt-6 bg-gray-800 p-4 rounded-lg text-white">
+                        <h3 className="text-lg font-semibold mb-2">Audit Result</h3>
+                        <p><strong>Recommendation:</strong> {result.recommendation}</p>
+                        <p><strong>Savings:</strong> ${result.savings}</p>
+                        <p><strong>Reason:</strong> {result.reason}</p>
+                    </div>
+                )}
             </div>
 
         </main>

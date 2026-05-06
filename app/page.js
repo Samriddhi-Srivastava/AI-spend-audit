@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export default function Home() {
   return (
     <main className="min-h-screen bg-gray-950 flex items-center justify-center px-4">
@@ -13,10 +15,7 @@ export default function Home() {
           Get a free, quick breakdown of your spendings and check where you can save
         </p>
 
-        <button className="bg-emerald-500 hover:bg-emerald-400 text-white font-semibold text-lg px-8 py-3 rounded-xl transition-colors duration-200">
-          Start Audit
-        </button>
-
+        <Link href="/audit-form" className="bg-emerald-500 hover:bg-emerald-400 text-white font-semibold text-lg px-8 py-3 rounded-xl transition-colors duration-200">Start Audit</Link>
       </div>
 
     </main>
