@@ -4,6 +4,14 @@ import { useState, useEffect } from "react";
 
 export default function AuditForm() {
 
+    const TOOL_PLANS = {
+        chatgpt: ["plus", "pro", "team"],
+        claude: ["pro", "max", "team"],
+        copilot: ["pro", "business"],
+        gemini: ["pro", "ultra"],
+        cursor: ["pro", "proPlus"]
+    };
+
     const [auditInput, setAuditInput] = useState({
         tool: "",
         plan: "",
@@ -27,10 +35,20 @@ export default function AuditForm() {
     }, [auditInput]);
 
     function handleChange(e) {
-        setAuditInput({
-            ...auditInput,
-            [e.target.name]: e.target.value,
-        });
+        const { name, value } = e.target;
+
+        if (name === "tool") {
+            setAuditInput({
+                ...auditInput,
+                tool: value,
+                plan: "" // reset plan when tool changes
+            });
+        } else {
+            setAuditInput({
+                ...auditInput,
+                [name]: value,
+            });
+        }
     }
 
     function handleSubmit(e) {
@@ -66,7 +84,9 @@ export default function AuditForm() {
                             <option value="">Select a tool</option>
                             <option value="chatgpt">ChatGPT</option>
                             <option value="claude">Claude</option>
-                            <option value="copilot">GitHub Copilot</option>
+                            <option value="copilot">Copilot</option>
+                            <option value="gemini">Gemini</option>
+                            <option value="cursor">Cursor</option>
                         </select>
                     </div>
 
@@ -80,9 +100,13 @@ export default function AuditForm() {
                             className="bg-gray-800 text-white border border-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                         >
                             <option value="">Select a plan</option>
-                            <option value="plus">Plus</option>
-                            <option value="team">Team</option>
-                            <option value="enterprise">Enterprise</option>
+
+                            {auditInput.tool &&
+                                TOOL_PLANS[auditInput.tool]?.map((planOption) => (
+                                    <option key={planOption} value={planOption}>
+                                        {planOption.replace(/([A-Z])/g, " $1")}
+                                    </option>
+                                ))}
                         </select>
                     </div>
 
