@@ -1,6 +1,6 @@
 # Developer Log
 
-## Day 1 — 2026-05-07  
+## Day 1 — 06-05-2026
 **Hours worked:** 9–10  
 
 ### What I did:
