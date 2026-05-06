@@ -9,6 +9,7 @@ export default function AuditForm() {
         plan: "",
         monthlySpend: "",
         users: "",
+        teamSize: "",
         useCase: "",
     });
 
@@ -21,6 +22,12 @@ export default function AuditForm() {
 
     function handleSubmit(e) {
         e.preventDefault();
+
+        if (!auditInput.tool || !auditInput.plan || !auditInput.monthlySpend) {
+            alert("Please fill all required fields");
+            return;
+        }
+
         console.log("Form submitted:", auditInput);
     }
 
