@@ -92,6 +92,19 @@ export default function AuditForm() {
                         />
                     </div>
 
+                    {/* Team Size */}
+                    <div className="flex flex-col gap-1">
+                        <label className="text-sm text-gray-400">Team size</label>
+                        <input
+                            type="number"
+                            name="teamSize"
+                            value={auditInput.teamSize}
+                            onChange={handleChange}
+                            placeholder="e.g. 10"
+                            className="bg-gray-800 text-white border border-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder-gray-600"
+                        />
+                    </div>
+
                     {/* Use Case */}
                     <div className="flex flex-col gap-1">
                         <label className="text-sm text-gray-400">Primary use case</label>
