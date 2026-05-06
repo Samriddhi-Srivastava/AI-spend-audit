@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function AuditForm() {
 
@@ -12,6 +12,19 @@ export default function AuditForm() {
         teamSize: "",
         useCase: "",
     });
+
+    // Load saved data on page load
+    useEffect(() => {
+        const saved = localStorage.getItem("auditInput");
+        if (saved) {
+            setAuditInput(JSON.parse(saved));
+        }
+    }, []);
+
+    // Save data whenever input changes
+    useEffect(() => {
+        localStorage.setItem("auditInput", JSON.stringify(auditInput));
+    }, [auditInput]);
 
     function handleChange(e) {
         setAuditInput({
@@ -133,7 +146,7 @@ export default function AuditForm() {
                         type="submit"
                         className="bg-emerald-500 hover:bg-emerald-400 text-white font-semibold py-3 rounded-xl transition-colors duration-200 mt-2"
                     >
-                        Get my audit
+                        Analyze My Spend
                     </button>
 
                 </form>
