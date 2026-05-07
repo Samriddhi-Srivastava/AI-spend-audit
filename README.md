@@ -111,7 +111,7 @@ npm run dev
 Development progress and daily updates are documented inside:
 
 ```bash
-devlog.md
+DEVLOG.md
 ```
 
 ---
@@ -120,4 +120,3 @@ devlog.md
 
 Built by Samriddhi Srivastava
 ````
-
