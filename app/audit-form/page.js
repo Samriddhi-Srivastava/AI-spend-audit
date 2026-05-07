@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { calculateAudit } from "../../lib/auditEngine";
+import { calculateAudit, generateSummary } from "../../lib/auditEngine";
 
 export default function AuditForm() {
 
@@ -23,6 +23,7 @@ export default function AuditForm() {
     });
 
     const [result, setResult] = useState(null);
+    const [summary, setSummary] = useState("");
 
     // Load saved data on page load
     useEffect(() => {
@@ -66,6 +67,9 @@ export default function AuditForm() {
 
         const auditResult = calculateAudit(auditInput);
         setResult(auditResult);
+
+        const generatedSummary = generateSummary(auditResult, auditInput);
+        setSummary(generatedSummary);
     }
 
 
@@ -184,11 +188,64 @@ export default function AuditForm() {
 
                 </form>
                 {result && (
-                    <div className="mt-6 bg-gray-800 p-4 rounded-lg text-white">
-                        <h3 className="text-lg font-semibold mb-2">Audit Result</h3>
-                        <p><strong>Recommendation:</strong> {result.recommendation}</p>
-                        <p><strong>Savings:</strong> ${result.savings}</p>
-                        <p><strong>Reason:</strong> {result.reason}</p>
+                    <div className="mt-8 bg-gray-900 border border-emerald-500/20 rounded-2xl p-6 text-white shadow-xl">
+
+                        <div className="flex items-center justify-between mb-6">
+                            <h3 className="text-2xl font-bold text-emerald-400">
+                                Audit Result
+                            </h3>
+
+                            <span className="bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full text-sm">
+                                Analysis Complete
+                            </span>
+                        </div>
+
+                        <div className="space-y-5">
+
+                            <div>
+                                <p className="text-gray-400 text-sm mb-1">
+                                    Recommendation
+                                </p>
+
+                                <p className="text-lg font-semibold">
+                                    {result.recommendation}
+                                </p>
+                            </div>
+
+                            <div>
+                                <p className="text-gray-400 text-sm mb-1">
+                                    Estimated Savings
+                                </p>
+
+                                <p className="text-3xl font-bold text-emerald-400">
+                                    ${result.savings}
+                                </p>
+                            </div>
+
+                            <div>
+                                <p className="text-gray-400 text-sm mb-1">
+                                    Reason
+                                </p>
+
+                                <p className="text-gray-200 leading-relaxed">
+                                    {result.reason}
+                                </p>
+                            </div>
+
+                        </div>
+                    </div>
+                )}
+                {summary && (
+                    <div className="mt-6 bg-gray-900 border border-gray-800 rounded-2xl p-6 text-white">
+
+                        <h3 className="text-xl font-semibold mb-3 text-emerald-400">
+                            AI Summary
+                        </h3>
+
+                        <p className="text-gray-300 leading-relaxed">
+                            {summary}
+                        </p>
+
                     </div>
                 )}
             </div>
