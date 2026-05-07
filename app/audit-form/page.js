@@ -18,7 +18,6 @@ export default function AuditForm() {
         plan: "",
         monthlySpend: "",
         users: "",
-        teamSize: "",
         useCase: "",
     });
 
@@ -88,6 +87,18 @@ export default function AuditForm() {
         }, 1500);
     }
 
+    function handleReset() {
+        setAuditInput({
+            tool: "",
+            plan: "",
+            monthlySpend: "",
+            users: "",
+            useCase: "",
+        });
+
+        setResult(null);
+        setSummary("");
+    }
 
 
 
@@ -161,19 +172,6 @@ export default function AuditForm() {
                             value={auditInput.users}
                             onChange={handleChange}
                             placeholder="e.g. 5"
-                            className="bg-gray-800 text-white border border-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder-gray-600"
-                        />
-                    </div>
-
-                    {/* Team Size */}
-                    <div className="flex flex-col gap-1">
-                        <label className="text-sm text-gray-400">Team size</label>
-                        <input
-                            type="number"
-                            name="teamSize"
-                            value={auditInput.teamSize}
-                            onChange={handleChange}
-                            placeholder="e.g. 10"
                             className="bg-gray-800 text-white border border-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder-gray-600"
                         />
                     </div>
@@ -278,6 +276,14 @@ export default function AuditForm() {
                         </p>
 
                     </div>
+                )}
+                {result && (
+                    <button
+                        onClick={handleReset}
+                        className="mt-6 w-full border border-gray-700 text-gray-300 hover:bg-gray-800 transition-colors duration-200 py-3 rounded-xl"
+                    >
+                        Start New Audit
+                    </button>
                 )}
             </div>
 
