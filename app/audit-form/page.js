@@ -24,6 +24,7 @@ export default function AuditForm() {
 
     const [result, setResult] = useState(null);
     const [summary, setSummary] = useState("");
+    const [loading, setLoading] = useState(false);
 
     // Load saved data on page load
     useEffect(() => {
@@ -58,18 +59,33 @@ export default function AuditForm() {
     function handleSubmit(e) {
         e.preventDefault();
 
-        if (!auditInput.tool || !auditInput.plan || !auditInput.monthlySpend) {
+        if (
+            !auditInput.tool ||
+            !auditInput.plan ||
+            !auditInput.monthlySpend
+        ) {
             alert("Please fill all required fields");
             return;
         }
 
-        console.log("Form submitted:", auditInput);
+        setLoading(true);
 
-        const auditResult = calculateAudit(auditInput);
-        setResult(auditResult);
+        setTimeout(() => {
 
-        const generatedSummary = generateSummary(auditResult, auditInput);
-        setSummary(generatedSummary);
+            const auditResult = calculateAudit(auditInput);
+
+            setResult(auditResult);
+
+            const generatedSummary = generateSummary(
+                auditResult,
+                auditInput
+            );
+
+            setSummary(generatedSummary);
+
+            setLoading(false);
+
+        }, 1500);
     }
 
 
@@ -187,6 +203,21 @@ export default function AuditForm() {
                     </button>
 
                 </form>
+                {loading && (
+                    <div className="mt-6 bg-gray-900 border border-emerald-500/20 rounded-2xl p-6 text-center">
+
+                        <div className="animate-pulse">
+                            <p className="text-emerald-400 text-lg font-semibold">
+                                Analyzing your AI spending...
+                            </p>
+
+                            <p className="text-gray-400 text-sm mt-2">
+                                Evaluating pricing, usage patterns, and optimization opportunities
+                            </p>
+                        </div>
+
+                    </div>
+                )}
                 {result && (
                     <div className="mt-8 bg-gray-900 border border-emerald-500/20 rounded-2xl p-6 text-white shadow-xl">
 
