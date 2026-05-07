@@ -38,3 +38,53 @@
 - Add AI-generated recommendation summaries
 - Refine responsiveness and user experience
 - Continue polishing the product flow
+
+
+
+
+## Day 2 — 07-05-2026
+**Hours worked:** 7–8  
+
+### What I did:
+- Created a dedicated SaaS-style landing page for the homepage (`/`)
+- Structured the homepage into:
+  - hero section
+  - stats section
+  - feature cards
+  - CTA section
+  - footer
+- Connected navigation flow between landing page and `/audit-form`
+- Designed the landing page using Tailwind CSS with:
+  - dark gradient theme
+  - emerald accent palette
+  - glassmorphism cards
+  - glow background effects
+  - hover animations
+  - responsive layouts
+- Added smooth scrolling navigation for the “View Features” button
+- Improved spacing and section alignment for better user experience
+- Refined product messaging and feature descriptions to sound more product-oriented
+- Enhanced typography hierarchy and overall visual consistency
+- Added hover interactions and scaling animations for cards and CTA buttons
+- Fixed UI alignment issues in stats cards and feature sections
+- Improved responsiveness for desktop and mobile layouts
+- Polished the overall frontend aesthetics and product presentation
+
+### What I learned:
+- How landing pages improve product positioning and first impressions
+- Better understanding of visual hierarchy, spacing, and UI consistency
+- How modern SaaS products use gradients, glassmorphism, and subtle animations
+- Importance of balancing aesthetics with usability
+- How small UI refinements significantly improve frontend quality
+
+### Blockers / what I’m thinking about:
+- Thinking about redesigning the audit form page to visually match the landing page
+- Exploring better ways to display audit recommendations and results
+- Considering adding charts or analytics visualizations for better insights
+- Thinking about integrating real AI-generated recommendations in future iterations
+
+### Plan for next day:
+- Redesign the audit form page with a more premium UI
+- Improve input styling and results cards
+- Enhance loading animations and responsiveness
+- Explore OpenAI API integration and deployment workflow
