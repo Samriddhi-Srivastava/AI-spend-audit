@@ -13,13 +13,47 @@ export default function AuditForm() {
         cursor: ["pro", "proPlus"]
     };
 
-    const [auditInput, setAuditInput] = useState({
-        tool: "",
-        plan: "",
-        monthlySpend: "",
-        users: "",
-        useCase: "",
-    });
+    const TOOL_DETAILS = {
+        chatgpt: {
+            name: "ChatGPT",
+            color: "from-green-400 to-emerald-600",
+            short: "CG"
+        },
+
+        claude: {
+            name: "Claude",
+            color: "from-orange-400 to-amber-600",
+            short: "CL"
+        },
+
+        copilot: {
+            name: "Copilot",
+            color: "from-blue-400 to-cyan-600",
+            short: "CP"
+        },
+
+        gemini: {
+            name: "Gemini",
+            color: "from-purple-400 to-pink-600",
+            short: "GM"
+        },
+
+        cursor: {
+            name: "Cursor",
+            color: "from-gray-300 to-gray-500",
+            short: "CS"
+        }
+    };
+
+    const [tools, setTools] = useState([
+        {
+            tool: "",
+            plan: "",
+            monthlySpend: "",
+            users: "",
+            useCase: "",
+        }
+    ]);
 
     const [result, setResult] = useState(null);
     const [summary, setSummary] = useState("");
@@ -27,52 +61,82 @@ export default function AuditForm() {
 
     // Load saved data
     useEffect(() => {
-        const saved = localStorage.getItem("auditInput");
+        const saved = localStorage.getItem("tools");
 
         if (saved) {
-            setAuditInput(JSON.parse(saved));
+            setTools(JSON.parse(saved));
         }
     }, []);
 
     // Save data
     useEffect(() => {
         localStorage.setItem(
-            "auditInput",
-            JSON.stringify(auditInput)
+            "tools",
+            JSON.stringify(tools)
         );
-    }, [auditInput]);
+    }, [tools]);
 
-    function handleChange(e) {
+    function handleChange(index, e) {
 
         const { name, value } = e.target;
 
+        const updatedTools = [...tools];
+
         if (name === "tool") {
 
-            setAuditInput({
-                ...auditInput,
+            updatedTools[index] = {
+                ...updatedTools[index],
                 tool: value,
                 plan: "",
-            });
+            };
 
         } else {
 
-            setAuditInput({
-                ...auditInput,
+            updatedTools[index] = {
+                ...updatedTools[index],
                 [name]: value,
-            });
+            };
 
         }
+
+        setTools(updatedTools);
+    }
+
+    function addTool() {
+
+        setTools([
+            ...tools,
+            {
+                tool: "",
+                plan: "",
+                monthlySpend: "",
+                users: "",
+                useCase: "",
+            }
+        ]);
+    }
+
+    function removeTool(index) {
+
+        const updatedTools = tools.filter(
+            (_, i) => i !== index
+        );
+
+        setTools(updatedTools);
     }
 
     function handleSubmit(e) {
 
         e.preventDefault();
 
-        if (
-            !auditInput.tool ||
-            !auditInput.plan ||
-            !auditInput.monthlySpend
-        ) {
+        const hasEmptyFields = tools.some(
+            (tool) =>
+                !tool.tool ||
+                !tool.plan ||
+                !tool.monthlySpend
+        );
+
+        if (hasEmptyFields) {
             alert("Please fill all required fields");
             return;
         }
@@ -81,13 +145,13 @@ export default function AuditForm() {
 
         setTimeout(() => {
 
-            const auditResult = calculateAudit(auditInput);
+            const auditResult = calculateAudit(tools);
 
             setResult(auditResult);
 
             const generatedSummary = generateSummary(
                 auditResult,
-                auditInput
+                tools
             );
 
             setSummary(generatedSummary);
@@ -99,13 +163,15 @@ export default function AuditForm() {
 
     function handleReset() {
 
-        setAuditInput({
-            tool: "",
-            plan: "",
-            monthlySpend: "",
-            users: "",
-            useCase: "",
-        });
+        setTools([
+            {
+                tool: "",
+                plan: "",
+                monthlySpend: "",
+                users: "",
+                useCase: "",
+            }
+        ]);
 
         setResult(null);
         setSummary("");
@@ -152,132 +218,212 @@ export default function AuditForm() {
 
                     <form
                         onSubmit={handleSubmit}
-                        className="flex flex-col gap-6"
+                        className="flex flex-col gap-8"
                     >
 
-                        {/* Tool */}
-                        <div className="flex flex-col gap-2">
+                        {tools.map((toolData, index) => (
 
-                            <label className="text-sm font-medium text-gray-300">
-                                AI Tool
-                            </label>
-
-                            <select
-                                name="tool"
-                                value={auditInput.tool}
-                                onChange={handleChange}
-                                className="bg-black/40 text-white border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-300"
+                            <div
+                                key={index}
+                                className="border border-gray-800 rounded-2xl p-6 bg-black/20"
                             >
 
-                                <option value="">Select a tool</option>
-                                <option value="chatgpt">ChatGPT</option>
-                                <option value="claude">Claude</option>
-                                <option value="copilot">Copilot</option>
-                                <option value="gemini">Gemini</option>
-                                <option value="cursor">Cursor</option>
+                                <div className="flex items-center justify-between mb-6">
 
-                            </select>
+                                    <h3 className="text-lg font-semibold text-emerald-400">
+                                        Tool #{index + 1}
+                                    </h3>
 
-                        </div>
-
-                        {/* Plan */}
-                        <div className="flex flex-col gap-2">
-
-                            <label className="text-sm font-medium text-gray-300">
-                                Plan
-                            </label>
-
-                            <select
-                                name="plan"
-                                value={auditInput.plan}
-                                onChange={handleChange}
-                                className="bg-black/40 text-white border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 transition-all duration-300"
-                            >
-
-                                <option value="">Select a plan</option>
-
-                                {auditInput.tool &&
-                                    TOOL_PLANS[auditInput.tool]?.map((planOption) => (
-                                        <option
-                                            key={planOption}
-                                            value={planOption}
+                                    {index > 0 && (
+                                        <button
+                                            type="button"
+                                            onClick={() => removeTool(index)}
+                                            className="text-red-400 text-sm hover:text-red-300"
                                         >
-                                            {planOption.replace(/([A-Z])/g, " $1")}
-                                        </option>
-                                    ))}
+                                            Remove
+                                        </button>
+                                    )}
 
-                            </select>
+                                </div>
 
-                        </div>
+                                <div className="grid md:grid-cols-2 gap-5">
 
-                        {/* Monthly Spend */}
-                        <div className="flex flex-col gap-2">
+                                    {/* Tool */}
+                                    <div className="flex flex-col gap-2">
 
-                            <label className="text-sm font-medium text-gray-300">
-                                Monthly Spend ($)
-                            </label>
+                                        <label className="text-sm text-gray-300">
+                                            AI Tool
+                                        </label>
 
-                            <input
-                                type="number"
-                                name="monthlySpend"
-                                value={auditInput.monthlySpend}
-                                onChange={handleChange}
-                                placeholder="e.g. 200"
-                                className="bg-black/40 text-white border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 placeholder-gray-600 transition-all duration-300"
-                            />
+                                        <select
+                                            name="tool"
+                                            value={toolData.tool}
+                                            onChange={(e) => handleChange(index, e)}
+                                            className="bg-black/40 text-white border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                        >
 
-                        </div>
+                                            <option value="">Select a tool</option>
+                                            <option value="chatgpt">ChatGPT</option>
+                                            <option value="claude">Claude</option>
+                                            <option value="copilot">Copilot</option>
+                                            <option value="gemini">Gemini</option>
+                                            <option value="cursor">Cursor</option>
 
-                        {/* Users */}
-                        <div className="flex flex-col gap-2">
+                                        </select>
 
-                            <label className="text-sm font-medium text-gray-300">
-                                Number of Users
-                            </label>
+                                    </div>
 
-                            <input
-                                type="number"
-                                name="users"
-                                value={auditInput.users}
-                                onChange={handleChange}
-                                placeholder="e.g. 5"
-                                className="bg-black/40 text-white border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 hover:border-emerald-500/40 placeholder-gray-600 transition-all duration-300"
-                            />
 
-                        </div>
+                                    {/* Tool Preview Card */}
+                                    {toolData.tool && (
+                                        <div className="bg-black/30 border border-gray-800 rounded-2xl p-4 flex items-center gap-4 animate-in fade-in duration-300">
 
-                        {/* Use Case */}
-                        <div className="flex flex-col gap-2">
+                                            <div
+                                                className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${TOOL_DETAILS[toolData.tool].color} flex items-center justify-center text-black font-bold text-lg shadow-lg`}
+                                            >
+                                                {TOOL_DETAILS[toolData.tool].short}
+                                            </div>
 
-                            <label className="text-sm font-medium text-gray-300">
-                                Primary Use Case
-                            </label>
+                                            <div>
+                                                <h3 className="text-lg font-semibold">
+                                                    {TOOL_DETAILS[toolData.tool].name}
+                                                </h3>
 
-                            <select
-                                name="useCase"
-                                value={auditInput.useCase}
-                                onChange={handleChange}
-                                className="bg-black/40 text-white border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-300"
-                            >
+                                                <p className="text-gray-400 text-sm">
+                                                    AI platform selected for audit
+                                                </p>
+                                            </div>
 
-                                <option value="">Select a use case</option>
-                                <option value="coding">Coding</option>
-                                <option value="writing">Writing</option>
-                                <option value="research">Research</option>
+                                        </div>
+                                    )}
 
-                            </select>
+                                    {/* Plan */}
+                                    <div className="flex flex-col gap-2">
 
-                        </div>
+                                        <label className="text-sm text-gray-300">
+                                            Plan
+                                        </label>
 
-                        {/* Submit */}
+                                        <select
+                                            name="plan"
+                                            value={toolData.plan}
+                                            onChange={(e) => handleChange(index, e)}
+                                            className="bg-black/40 text-white border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                        >
+
+                                            <option value="">Select a plan</option>
+
+                                            {toolData.tool &&
+                                                TOOL_PLANS[toolData.tool]?.map((planOption) => (
+                                                    <option
+                                                        key={planOption}
+                                                        value={planOption}
+                                                    >
+                                                        {planOption.replace(/([A-Z])/g, " $1")}
+                                                    </option>
+                                                ))}
+
+                                        </select>
+
+                                    </div>
+
+                                    {/* Monthly Spend */}
+                                    <div className="flex flex-col gap-2">
+
+                                        <label className="text-sm text-gray-300">
+                                            Monthly Spend ($)
+                                        </label>
+
+                                        <input
+                                            type="number"
+                                            name="monthlySpend"
+                                            value={toolData.monthlySpend}
+                                            onChange={(e) => handleChange(index, e)}
+                                            placeholder="e.g. 20"
+                                            className="bg-black/40 text-white border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                        />
+
+                                    </div>
+
+                                    {/* Users */}
+                                    <div className="flex flex-col gap-2">
+
+                                        <label className="text-sm text-gray-300">
+                                            Number of Users
+                                        </label>
+
+                                        <input
+                                            type="number"
+                                            name="users"
+                                            value={toolData.users}
+                                            onChange={(e) => handleChange(index, e)}
+                                            placeholder="e.g. 5"
+                                            className="bg-black/40 text-white border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                        />
+
+                                    </div>
+
+                                    {/* Use Case */}
+                                    <div className="flex flex-col gap-2">
+
+                                        <label className="text-sm text-gray-300">
+                                            Primary Use Case
+                                        </label>
+
+                                        <select
+                                            name="useCase"
+                                            value={toolData.useCase}
+                                            onChange={(e) => handleChange(index, e)}
+                                            className="bg-black/40 text-white border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                        >
+
+                                            <option value="">Select use case</option>
+                                            <option value="coding">Coding</option>
+                                            <option value="writing">Writing</option>
+                                            <option value="research">Research</option>
+
+                                        </select>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        ))}
+
+                        <button
+                            type="button"
+                            onClick={addTool}
+                            className="border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 py-3 rounded-2xl transition-all duration-300"
+                        >
+                            + Add Another Tool
+                        </button>
+
                         <button
                             type="submit"
-                            className="bg-emerald-500 hover:bg-emerald-400 text-white font-semibold py-4 rounded-2xl transition-all duration-300 hover:scale-[1.02] shadow-lg shadow-emerald-500/20 mt-2"
+                            className="bg-emerald-500 hover:bg-emerald-400 text-white font-semibold py-4 rounded-2xl transition-all duration-300 hover:scale-[1.02]"
                         >
-                            Analyze My Spend
+                            Analyze Complete AI Stack
                         </button>
 
                     </form>
+
+                    {!result && !loading && (
+
+                        <div className="mt-8 border border-dashed border-gray-700 rounded-3xl p-10 text-center bg-black/20">
+
+                            <h3 className="text-xl font-semibold text-gray-300 mb-2">
+                                Your audit results will appear here
+                            </h3>
+
+                            <p className="text-gray-500 text-sm">
+                                Add your AI tools and analyze your spending to get optimization insights
+                            </p>
+
+                        </div>
+
+                    )}
 
                     {/* Loading */}
                     {loading && (
@@ -318,8 +464,13 @@ export default function AuditForm() {
                                     Audit Result
                                 </h3>
 
-                                <span className="bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full text-sm">
-                                    Analysis Complete
+                                <span className={`px-3 py-1 rounded-full text-sm ${result.savings > 0
+                                        ? "bg-red-500/10 text-red-400"
+                                        : "bg-emerald-500/10 text-emerald-400"
+                                    }`}>
+                                    {result.savings > 0
+                                        ? "Optimization Found"
+                                        : "Well Optimized"}
                                 </span>
 
                             </div>
@@ -404,9 +555,3 @@ export default function AuditForm() {
         </main>
     );
 }
-
-
-
-
-
-
