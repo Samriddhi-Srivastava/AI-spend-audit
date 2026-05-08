@@ -39,7 +39,7 @@
 - Refine responsiveness and user experience
 - Continue polishing the product flow
 
-
+--------
 
 
 ## Day 2 — 07-05-2026
@@ -88,3 +88,45 @@
 - Improve input styling and results cards
 - Enhance loading animations and responsiveness
 - Explore OpenAI API integration and deployment workflow
+
+
+---------
+
+
+## Day 3 — 09-05-2026
+**Hours worked:** 7–8  
+
+### What I did:
+- Redesigned the audit form UI with a cleaner glassmorphism-based layout
+- Improved overall visual hierarchy, spacing, and responsiveness using Tailwind CSS
+- Added support for auditing multiple AI tools within a single workflow
+- Implemented dynamic add/remove tool functionality
+- Created reusable multi-tool state management using arrays and indexed updates
+- Added dynamic AI tool detail cards with platform-specific branding colors
+- Improved loading state UI with animated spinner and better feedback messaging
+- Enhanced audit result cards with improved typography and layout structure
+- Refactored form structure for better scalability and maintainability
+- Added persistent localStorage support for multi-tool audit data
+- Improved transition animations and hover interactions across the UI
+- Continued refining the audit workflow and user experience
+- Updated project documentation including README structure and feature documentation
+
+### What I learned:
+- Better understanding of scalable state management for dynamic form arrays in React
+- How to manage multiple controlled form sections efficiently
+- Improved understanding of reusable UI patterns and component structuring
+- Learned how better visual hierarchy improves usability and readability
+- Gained more experience designing SaaS-style dashboard interfaces
+
+### Blockers / what I’m thinking about:
+- Thinking about how to make audit recommendations more intelligent across multiple tools
+- Exploring comparative analysis between overlapping AI subscriptions
+- Considering adding charts and analytics for better audit visualization
+- Planning ways to suggest optimized alternative plans dynamically
+
+### Plan for next day:
+- Add smarter multi-tool audit recommendation logic
+- Build comparative breakdown cards for each AI tool
+- Add suggested alternative plans and optimization insights
+- Start implementing charts and analytics visualizations
+- Continue improving responsiveness and overall UI polish
