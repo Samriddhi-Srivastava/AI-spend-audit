@@ -1,26 +1,28 @@
-
 # AI Spend Auditor
 
 AI Spend Auditor is a modern SaaS-style web application that helps users analyze and optimize their AI subscription spending across platforms like ChatGPT, Claude, Gemini, Copilot, and Cursor.
 
-Built using Next.js, React, and Tailwind CSS, the application provides intelligent cost-saving recommendations, plan analysis, and a premium user experience.
+Built using Next.js, React, and Tailwind CSS, the application provides intelligent cost-saving recommendations, multi-tool audit analysis, and a premium user experience focused on AI subscription optimization.
 
 ---
 
 ## Features
 
-- AI subscription cost analysis
-- Dynamic plan recommendations
-- Usage-based audit engine
-- AI-powered recommendation summaries
+- Multi-tool AI subscription auditing
+- Dynamic plan selection for major AI platforms
+- Cost optimization recommendations
+- Estimated savings calculation
+- Personalized AI usage insights
 - Multi-platform support:
   - ChatGPT
   - Claude
   - Gemini
   - Copilot
   - Cursor
-- Responsive SaaS-style UI
+- Responsive SaaS-style glassmorphism UI
 - Interactive landing page
+- Dynamic audit summaries
+- Add/remove tool workflow
 - LocalStorage persistence
 - Loading states and smooth UX
 
@@ -28,10 +30,11 @@ Built using Next.js, React, and Tailwind CSS, the application provides intellige
 
 ## Tech Stack
 
-- Next.js
+- Next.js 15
 - React.js
 - Tailwind CSS
 - JavaScript
+- LocalStorage API
 
 ---
 
@@ -39,31 +42,35 @@ Built using Next.js, React, and Tailwind CSS, the application provides intellige
 
 ```bash
 app/
- ├── page.js                # Landing page
+ ├── page.js                    # Landing page
  ├── audit-form/
- │    └── page.js           # Audit form page
- ├── components/
- ├── utils/
- │    └── auditEngine.js    # Audit recommendation logic
+ │    └── page.js               # Multi-tool audit form page
+
+lib/
+ └── auditEngine.js             # Audit recommendation logic
+
+public/
 ```
 
 ---
 
 ## How It Works
 
-1. User selects an AI platform and subscription plan
-2. User enters:
+1. Users select one or multiple AI platforms and subscription plans
+2. Users enter:
    - monthly spending
-   - team size
+   - number of users
    - primary use case
 3. The audit engine analyzes:
    - pricing efficiency
-   - team-plan compatibility
-   - tool suitability
-4. The app generates:
-   - recommendations
+   - plan suitability
+   - team-size compatibility
+   - tool overlap opportunities
+4. The application generates:
+   - optimization recommendations
    - estimated savings
    - AI-style summaries
+   - spending insights
 
 ---
 
@@ -72,13 +79,13 @@ app/
 Clone the repository:
 
 ```bash
-git clone <your-repo-link>
+git clone <your-repository-link>
 ```
 
 Navigate into the project:
 
 ```bash
-cd ai-spend-audit
+cd ai-spend-auditor
 ```
 
 Install dependencies:
@@ -97,12 +104,14 @@ npm run dev
 
 ## Future Improvements
 
-- OpenAI API integration
+- Smarter multi-tool recommendation engine
+- AI-generated optimization insights
 - Analytics dashboard and charts
-- Authentication system
 - Exportable audit reports
-- Advanced recommendation engine
+- Authentication and user accounts
 - Real-time pricing updates
+- Team collaboration support
+- Cloud database integration
 
 ---
 
@@ -119,4 +128,6 @@ DEVLOG.md
 ## Author
 
 Built by Samriddhi Srivastava
+````
+
 ````
