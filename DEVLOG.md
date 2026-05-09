@@ -93,7 +93,7 @@
 ---------
 
 
-## Day 3 — 09-05-2026
+## Day 3 — 08-05-2026
 **Hours worked:** 7–8  
 
 ### What I did:
@@ -130,3 +130,63 @@
 - Add suggested alternative plans and optimization insights
 - Start implementing charts and analytics visualizations
 - Continue improving responsiveness and overall UI polish
+
+-------
+
+# Developer Log
+
+## Day 4 — 10-05-2026
+**Hours worked:** 8–9  
+
+### What I did:
+- Upgraded the audit engine from single-tool analysis to complete AI stack analysis
+- Refactored the audit engine to support multiple tools dynamically using array-based analysis
+- Added centralized pricing architecture for ChatGPT, Claude, Gemini, Copilot, and Cursor
+- Added detailed pricing metadata including:
+  - pricing
+  - ideal users
+  - workflow suitability
+  - subscription type
+- Implemented optimization scoring system (`score / 100`)
+- Added overpayment detection logic based on expected vs actual spending
+- Added duplicate workflow detection for overlapping AI subscriptions
+- Added intelligent tool recommendation logic:
+  - ChatGPT → Cursor/Copilot for coding workflows
+  - Copilot → ChatGPT for writing workflows
+- Added strengths and issues analysis system
+- Added total spend and estimated savings calculations
+- Improved recommendation and reasoning generation logic
+- Refactored summary generation for multi-tool AI stack analysis
+- Added optimization score card in the results UI
+- Added issue cards and strengths cards in the audit results section
+- Added suggested alternative tool section
+- Added dynamic score coloring based on optimization score
+- Fixed major bugs related to:
+  - `tools.forEach is not a function`
+  - incorrect data passed into audit functions
+  - duplicate `useEffect` hooks
+  - LocalStorage parsing and rendering issues
+- Improved overall audit flow and product experience
+
+### What I learned:
+- How to build scalable rule-based recommendation systems
+- Better understanding of multi-tool SaaS analysis logic
+- Importance of separating business logic from UI components
+- How scoring systems improve SaaS product experience
+- Better debugging strategies for React state and rendering issues
+- How centralized pricing architecture improves maintainability
+
+### Blockers / what I’m thinking about:
+- Thinking about integrating OpenAI API for smarter recommendations
+- Exploring analytics dashboards and visual spend insights
+- Considering adding exportable audit reports
+- Thinking about improving audit intelligence beyond rule-based logic
+- Exploring deployment and production-readiness improvements
+
+### Plan for next day:
+- Add analytics dashboard cards
+- Add spend visualization and charts
+- Improve audit result UI consistency
+- Add export/report generation feature
+- Prepare application for deployment
+- Continue aligning the project with company brief requirements
