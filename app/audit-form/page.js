@@ -6,7 +6,7 @@ import { calculateAudit, generateSummary } from "../../lib/auditEngine";
 export default function AuditForm() {
 
     const TOOL_PLANS = {
-        chatgpt: ["plus", "pro", "team"],
+        chatgpt: ["plus", "pro", "business"],
         claude: ["pro", "max", "team"],
         copilot: ["pro", "business"],
         gemini: ["pro", "ultra"],
@@ -59,22 +59,38 @@ export default function AuditForm() {
     const [summary, setSummary] = useState("");
     const [loading, setLoading] = useState(false);
 
-    // Load saved data
     useEffect(() => {
-        const saved = localStorage.getItem("tools");
+
+        const saved =
+            localStorage.getItem("tools");
 
         if (saved) {
-            setTools(JSON.parse(saved));
+
+            const parsedData =
+                JSON.parse(saved);
+
+            if (Array.isArray(parsedData)) {
+
+                setTools(parsedData);
+
+            } else {
+
+                localStorage.removeItem("tools");
+
+            }
         }
+
     }, []);
 
-    // Save data
     useEffect(() => {
+
         localStorage.setItem(
             "tools",
             JSON.stringify(tools)
         );
+
     }, [tools]);
+
 
     function handleChange(index, e) {
 
@@ -145,15 +161,14 @@ export default function AuditForm() {
 
         setTimeout(() => {
 
-            const auditResult = calculateAudit(tools[0]);
+            const auditResult = calculateAudit(tools);
 
             setResult(auditResult);
 
             const generatedSummary = generateSummary(
                 auditResult,
-                tools[0]
+                tools
             );
-
             setSummary(generatedSummary);
 
             setLoading(false);
@@ -415,6 +430,21 @@ export default function AuditForm() {
 
                             <h3 className="text-xl font-semibold text-gray-300 mb-2">
                                 Your audit results will appear here
+                                <div className="mt-4 flex justify-center gap-2 flex-wrap">
+
+                                    <span className="px-3 py-1 bg-gray-800 rounded-full text-xs text-gray-400">
+                                        Cost Analysis
+                                    </span>
+
+                                    <span className="px-3 py-1 bg-gray-800 rounded-full text-xs text-gray-400">
+                                        Optimization Insights
+                                    </span>
+
+                                    <span className="px-3 py-1 bg-gray-800 rounded-full text-xs text-gray-400">
+                                        AI Recommendations
+                                    </span>
+
+                                </div>
                             </h3>
 
                             <p className="text-gray-500 text-sm">
@@ -447,6 +477,61 @@ export default function AuditForm() {
 
                                 </div>
 
+                            </div>
+
+                        </div>
+
+                    )}
+
+                    {result && (
+
+                        <div className="grid md:grid-cols-4 gap-4 mt-8 mb-6">
+
+                            <div className="bg-gray-900/70 border border-gray-800 rounded-2xl p-5">
+                                <p className="text-gray-400 text-sm mb-2">
+                                    Total Spend
+                                </p>
+
+                                <h3 className="text-3xl font-black text-white">
+                                    ${result.totalSpend}
+                                </h3>
+                            </div>
+
+                            <div className="bg-gray-900/70 border border-emerald-500/20 rounded-2xl p-5">
+                                <p className="text-gray-400 text-sm mb-2">
+                                    Potential Savings
+                                </p>
+
+                                <h3 className="text-3xl font-black text-emerald-400">
+                                    ${result.savings}
+                                </h3>
+                            </div>
+
+                            <div className="bg-gray-900/70 border border-gray-800 rounded-2xl p-5">
+                                <p className="text-gray-400 text-sm mb-2">
+                                    Tools Analyzed
+                                </p>
+
+                                <h3 className="text-3xl font-black text-white">
+                                    {result.toolsAnalyzed}
+                                </h3>
+                            </div>
+
+                            <div className="bg-gray-900/70 border border-gray-800 rounded-2xl p-5">
+                                <p className="text-gray-400 text-sm mb-2">
+                                    Optimization Score
+                                </p>
+
+                                <h3
+                                    className={`text-3xl font-black ${result.score >= 80
+                                        ? "text-emerald-400"
+                                        : result.score >= 50
+                                            ? "text-yellow-400"
+                                            : "text-red-400"
+                                        }`}
+                                >
+                                    {result.score}/100
+                                </h3>
                             </div>
 
                         </div>
@@ -593,6 +678,9 @@ export default function AuditForm() {
                                     <p className="text-4xl font-black text-emerald-400">
                                         ${result.savings}
                                     </p>
+                                    <p className="text-gray-400 text-sm mt-2">
+                                        {result.savingsPercentage}% optimization potential detected
+                                    </p>
 
                                 </div>
 
@@ -623,9 +711,13 @@ export default function AuditForm() {
                                 AI Summary
                             </h3>
 
-                            <p className="text-gray-300 leading-relaxed">
-                                {summary}
-                            </p>
+                            <div className="bg-black/20 border border-gray-800 rounded-2xl p-5">
+
+                                <p className="text-gray-300 leading-relaxed">
+                                    {summary}
+                                </p>
+
+                            </div>
 
                         </div>
 
