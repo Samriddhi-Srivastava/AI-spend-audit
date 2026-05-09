@@ -133,9 +133,7 @@
 
 -------
 
-# Developer Log
-
-## Day 4 — 10-05-2026
+## Day 4 — 9-05-2026
 **Hours worked:** 8–9  
 
 ### What I did:
