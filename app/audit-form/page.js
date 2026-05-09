@@ -145,13 +145,13 @@ export default function AuditForm() {
 
         setTimeout(() => {
 
-            const auditResult = calculateAudit(tools);
+            const auditResult = calculateAudit(tools[0]);
 
             setResult(auditResult);
 
             const generatedSummary = generateSummary(
                 auditResult,
-                tools
+                tools[0]
             );
 
             setSummary(generatedSummary);
@@ -456,7 +456,27 @@ export default function AuditForm() {
                     {/* Result */}
                     {result && (
 
+
                         <div className="mt-8 bg-gray-900/70 backdrop-blur-xl border border-emerald-500/20 rounded-3xl p-6 text-white shadow-xl animate-in fade-in duration-500">
+
+                            <div className="bg-black/30 border border-gray-800 rounded-2xl p-5 mb-6">
+
+                                <p className="text-gray-400 text-sm mb-2">
+                                    Optimization Score
+                                </p>
+
+                                <h3
+                                    className={`text-4xl font-black ${result.score >= 80
+                                        ? "text-emerald-400"
+                                        : result.score >= 50
+                                            ? "text-yellow-400"
+                                            : "text-red-400"
+                                        }`}
+                                >
+                                    {result.score}/100
+                                </h3>
+
+                            </div>
 
                             <div className="flex items-center justify-between mb-6">
 
@@ -465,14 +485,73 @@ export default function AuditForm() {
                                 </h3>
 
                                 <span className={`px-3 py-1 rounded-full text-sm ${result.savings > 0
-                                        ? "bg-red-500/10 text-red-400"
-                                        : "bg-emerald-500/10 text-emerald-400"
+                                    ? "bg-red-500/10 text-red-400"
+                                    : "bg-emerald-500/10 text-emerald-400"
                                     }`}>
                                     {result.savings > 0
                                         ? "Optimization Found"
                                         : "Well Optimized"}
                                 </span>
 
+                            </div>
+
+                            <div className="flex items-center justify-between mb-6">
+
+                                {result.issues.length > 0 && (
+
+                                    <div>
+
+                                        <p className="text-gray-400 text-sm mb-3">
+                                            Issues Detected
+                                        </p>
+
+                                        <div className="space-y-2">
+
+                                            {result.issues.map((issue, index) => (
+
+                                                <div
+                                                    key={index}
+                                                    className="bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 text-sm text-red-300"
+                                                >
+                                                    {issue}
+                                                </div>
+
+                                            ))}
+
+                                        </div>
+
+                                    </div>
+
+                                )}
+                            </div>
+
+                            <div className="flex items-center justify-between mb-6">
+                                {result.strengths.length > 0 && (
+
+                                    <div>
+
+                                        <p className="text-gray-400 text-sm mb-3">
+                                            Strengths
+                                        </p>
+
+                                        <div className="space-y-2">
+
+                                            {result.strengths.map((strength, index) => (
+
+                                                <div
+                                                    key={index}
+                                                    className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3 text-sm text-emerald-300"
+                                                >
+                                                    {strength}
+                                                </div>
+
+                                            ))}
+
+                                        </div>
+
+                                    </div>
+
+                                )}
                             </div>
 
                             <div className="space-y-6">
@@ -488,6 +567,22 @@ export default function AuditForm() {
                                     </p>
 
                                 </div>
+
+                                {result.suggestedTool !== tools[0].tool && (
+
+                                    <div>
+
+                                        <p className="text-gray-400 text-sm mb-1">
+                                            Suggested Alternative
+                                        </p>
+
+                                        <p className="text-lg font-semibold text-emerald-400 capitalize">
+                                            {result.suggestedTool}
+                                        </p>
+
+                                    </div>
+
+                                )}
 
                                 <div>
 
