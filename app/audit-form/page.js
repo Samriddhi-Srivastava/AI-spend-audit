@@ -6,7 +6,7 @@ import { calculateAudit, generateSummary } from "../../lib/auditEngine";
 export default function AuditForm() {
 
     const TOOL_PLANS = {
-        chatgpt: ["plus", "pro", "business"],
+        chatgpt: ["free", "plus", "pro", "business"],
         claude: ["pro", "max", "team"],
         copilot: ["pro", "business"],
         gemini: ["pro", "ultra"],
