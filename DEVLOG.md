@@ -28,7 +28,7 @@
 - How dynamic rendering improves UX and product usability
 - How rule-based logic can simulate practical decision-making systems
 
-### Blockers / what I’m thinking about:
+### Blockers / what I'm stuck on:
 - How to make the audit logic more adaptive instead of purely rule-based
 - Thinking about how to improve the visual presentation of audit results
 - Exploring ways to generate smarter AI-driven summaries
@@ -77,7 +77,7 @@
 - Importance of balancing aesthetics with usability
 - How small UI refinements significantly improve frontend quality
 
-### Blockers / what I’m thinking about:
+### Blockers / what I'm stuck on:
 - Thinking about redesigning the audit form page to visually match the landing page
 - Exploring better ways to display audit recommendations and results
 - Considering adding charts or analytics visualizations for better insights
@@ -118,7 +118,7 @@
 - Learned how better visual hierarchy improves usability and readability
 - Gained more experience designing SaaS-style dashboard interfaces
 
-### Blockers / what I’m thinking about:
+### Blockers / what I'm stuck on:
 - Thinking about how to make audit recommendations more intelligent across multiple tools
 - Exploring comparative analysis between overlapping AI subscriptions
 - Considering adding charts and analytics for better audit visualization
@@ -174,7 +174,7 @@
 - Better debugging strategies for React state and rendering issues
 - How centralized pricing architecture improves maintainability
 
-### Blockers / what I’m thinking about:
+### Blockers / what I'm stuck on:
 - Thinking about integrating OpenAI API for smarter recommendations
 - Exploring analytics dashboards and visual spend insights
 - Considering adding exportable audit reports

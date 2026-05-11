@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { calculateAudit, generateSummary } from "../../lib/auditEngine";
+import { calculateAudit, generateFallbackSummary } from "../../lib/auditEngine";
 
 export default function AuditForm() {
 
@@ -58,6 +58,13 @@ export default function AuditForm() {
     const [result, setResult] = useState(null);
     const [summary, setSummary] = useState("");
     const [loading, setLoading] = useState(false);
+    const [auditId, setAuditId] = useState(null);
+    const [leadSubmitted, setLeadSubmitted] = useState(false);
+    const [leadData, setLeadData] = useState({
+        email: "",
+        companyName: "",
+        role: "",
+    });
 
     useEffect(() => {
 
@@ -141,7 +148,7 @@ export default function AuditForm() {
         setTools(updatedTools);
     }
 
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
 
         e.preventDefault();
 
@@ -159,38 +166,95 @@ export default function AuditForm() {
 
         setLoading(true);
 
-        setTimeout(() => {
+        // Step 1: Run the audit engine (instant, no API needed)
+        const auditResult = calculateAudit(tools);
+        setResult(auditResult);
 
-            const auditResult = calculateAudit(tools);
+        // Step 2: Try Anthropic API for AI summary
+        // Falls back to template if API fails
+        try {
 
-            setResult(auditResult);
+            const response = await fetch("/api/summary", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    auditResult,
+                    tools,
+                }),
+            });
 
-            const generatedSummary = generateSummary(
-                auditResult,
-                tools
-            );
-            setSummary(generatedSummary);
+            const data = await response.json();
+
+            if (data.summary) {
+                setSummary(data.summary);
+            } else {
+                setSummary(generateFallbackSummary(auditResult, tools));
+            }
+
+        } catch (error) {
+
+            // API failed — use the fallback template summary
+            console.error("Summary API failed:", error);
+            setSummary(generateFallbackSummary(auditResult, tools));
+
+        } finally {
 
             setLoading(false);
 
-        }, 1500);
+        }
     }
-
     function handleReset() {
-
-        setTools([
-            {
-                tool: "",
-                plan: "",
-                monthlySpend: "",
-                users: "",
-                useCase: "",
-            }
-        ]);
-
+        setTools([{
+            tool: "",
+            plan: "",
+            monthlySpend: "",
+            users: "",
+            useCase: "",
+        }]);
         setResult(null);
         setSummary("");
+        setAuditId(null);
+        setLeadSubmitted(false);
+        setLeadData({ email: "", companyName: "", role: "" });
     }
+
+    async function handleLeadSubmit(e) {
+
+        e.preventDefault();
+
+        if (!leadData.email) {
+            alert("Please enter your email");
+            return;
+        }
+
+        try {
+
+            const response = await fetch("/api/save-audit", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    tools,
+                    result,
+                    summary,
+                    email: leadData.email,
+                    companyName: leadData.companyName,
+                    role: leadData.role,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (data.id) {
+                setAuditId(data.id);
+                setLeadSubmitted(true);
+            }
+
+        } catch (error) {
+            console.error("Lead submit error:", error);
+            alert("Something went wrong. Please try again.");
+        }
+    }
+
 
     return (
 
@@ -483,262 +547,301 @@ export default function AuditForm() {
 
                     )}
 
+                    {/* Hero Stats */}
                     {result && (
-
-                        <div className="grid md:grid-cols-4 gap-4 mt-8 mb-6">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 mb-6">
 
                             <div className="bg-gray-900/70 border border-gray-800 rounded-2xl p-5">
-                                <p className="text-gray-400 text-sm mb-2">
-                                    Total Spend
-                                </p>
-
+                                <p className="text-gray-400 text-sm mb-2">Total Spend</p>
                                 <h3 className="text-3xl font-black text-white">
                                     ${result.totalSpend}
+                                    <span className="text-gray-500 text-sm font-normal">/mo</span>
                                 </h3>
                             </div>
 
                             <div className="bg-gray-900/70 border border-emerald-500/20 rounded-2xl p-5">
-                                <p className="text-gray-400 text-sm mb-2">
-                                    Potential Savings
-                                </p>
-
+                                <p className="text-gray-400 text-sm mb-2">Monthly Savings</p>
                                 <h3 className="text-3xl font-black text-emerald-400">
-                                    ${result.savings}
+                                    ${result.totalSavings}
+                                    <span className="text-emerald-600 text-sm font-normal">/mo</span>
                                 </h3>
+                                <p className="text-emerald-600 text-xs mt-1">
+                                    ${result.annualSavings}/yr
+                                </p>
                             </div>
 
                             <div className="bg-gray-900/70 border border-gray-800 rounded-2xl p-5">
-                                <p className="text-gray-400 text-sm mb-2">
-                                    Tools Analyzed
-                                </p>
-
+                                <p className="text-gray-400 text-sm mb-2">Tools Analyzed</p>
                                 <h3 className="text-3xl font-black text-white">
                                     {result.toolsAnalyzed}
                                 </h3>
                             </div>
 
                             <div className="bg-gray-900/70 border border-gray-800 rounded-2xl p-5">
-                                <p className="text-gray-400 text-sm mb-2">
-                                    Optimization Score
-                                </p>
-
-                                <h3
-                                    className={`text-3xl font-black ${result.score >= 80
-                                        ? "text-emerald-400"
-                                        : result.score >= 50
-                                            ? "text-yellow-400"
-                                            : "text-red-400"
-                                        }`}
-                                >
-                                    {result.score}/100
-                                </h3>
-                            </div>
-
-                        </div>
-
-                    )}
-
-                    {/* Result */}
-                    {result && (
-
-
-                        <div className="mt-8 bg-gray-900/70 backdrop-blur-xl border border-emerald-500/20 rounded-3xl p-6 text-white shadow-xl animate-in fade-in duration-500">
-
-                            <div className="bg-black/30 border border-gray-800 rounded-2xl p-5 mb-6">
-
-                                <p className="text-gray-400 text-sm mb-2">
-                                    Optimization Score
-                                </p>
-
-                                <h3
-                                    className={`text-4xl font-black ${result.score >= 80
-                                        ? "text-emerald-400"
-                                        : result.score >= 50
-                                            ? "text-yellow-400"
-                                            : "text-red-400"
-                                        }`}
-                                >
-                                    {result.score}/100
-                                </h3>
-
-                            </div>
-
-                            <div className="flex items-center justify-between mb-6">
-
-                                <h3 className="text-2xl font-bold text-emerald-400">
-                                    Audit Result
-                                </h3>
-
-                                <span className={`px-3 py-1 rounded-full text-sm ${result.savings > 0
-                                    ? "bg-red-500/10 text-red-400"
-                                    : "bg-emerald-500/10 text-emerald-400"
+                                <p className="text-gray-400 text-sm mb-2">Optimization Score</p>
+                                <h3 className={`text-3xl font-black ${result.score >= 80 ? "text-emerald-400"
+                                    : result.score >= 50 ? "text-yellow-400"
+                                        : "text-red-400"
                                     }`}>
-                                    {result.savings > 0
-                                        ? "Optimization Found"
-                                        : "Well Optimized"}
-                                </span>
-
-                            </div>
-
-                            <div className="flex items-center justify-between mb-6">
-
-                                {result.issues.length > 0 && (
-
-                                    <div>
-
-                                        <p className="text-gray-400 text-sm mb-3">
-                                            Issues Detected
-                                        </p>
-
-                                        <div className="space-y-2">
-
-                                            {result.issues.map((issue, index) => (
-
-                                                <div
-                                                    key={index}
-                                                    className="bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 text-sm text-red-300"
-                                                >
-                                                    {issue}
-                                                </div>
-
-                                            ))}
-
-                                        </div>
-
-                                    </div>
-
-                                )}
-                            </div>
-
-                            <div className="flex items-center justify-between mb-6">
-                                {result.strengths.length > 0 && (
-
-                                    <div>
-
-                                        <p className="text-gray-400 text-sm mb-3">
-                                            Strengths
-                                        </p>
-
-                                        <div className="space-y-2">
-
-                                            {result.strengths.map((strength, index) => (
-
-                                                <div
-                                                    key={index}
-                                                    className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3 text-sm text-emerald-300"
-                                                >
-                                                    {strength}
-                                                </div>
-
-                                            ))}
-
-                                        </div>
-
-                                    </div>
-
-                                )}
-                            </div>
-
-                            <div className="space-y-6">
-
-                                <div>
-
-                                    <p className="text-gray-400 text-sm mb-1">
-                                        Recommendation
-                                    </p>
-
-                                    <p className="text-lg font-semibold">
-                                        {result.recommendation}
-                                    </p>
-
-                                </div>
-
-                                {result.suggestedTool !== tools[0].tool && (
-
-                                    <div>
-
-                                        <p className="text-gray-400 text-sm mb-1">
-                                            Suggested Alternative
-                                        </p>
-
-                                        <p className="text-lg font-semibold text-emerald-400 capitalize">
-                                            {result.suggestedTool}
-                                        </p>
-
-                                    </div>
-
-                                )}
-
-                                <div>
-
-                                    <p className="text-gray-400 text-sm mb-1">
-                                        Estimated Savings
-                                    </p>
-
-                                    <p className="text-4xl font-black text-emerald-400">
-                                        ${result.savings}
-                                    </p>
-                                    <p className="text-gray-400 text-sm mt-2">
-                                        {result.savingsPercentage}% optimization potential detected
-                                    </p>
-
-                                </div>
-
-                                <div>
-
-                                    <p className="text-gray-400 text-sm mb-1">
-                                        Reason
-                                    </p>
-
-                                    <p className="text-gray-200 leading-relaxed">
-                                        {result.reason}
-                                    </p>
-
-                                </div>
-
+                                    {result.score}/100
+                                </h3>
                             </div>
 
                         </div>
-
                     )}
 
-                    {/* Summary */}
+                    {/* Credex CTA — only shows if savings > $500/mo */}
+                    {result && result.totalSavings > 500 && (
+                        <div className="mt-4 mb-6 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-6">
+                            <div className="flex items-start justify-between gap-4 flex-wrap">
+                                <div>
+                                    <h4 className="text-emerald-400 font-bold text-lg mb-1">
+                                        You could save ${result.annualSavings}/yr
+                                    </h4>
+                                    <p className="text-gray-400 text-sm">
+                                        Credex offers discounted AI credits for tools like the ones you use —
+                                        sourced from companies that overforecast. Real discounts, same tools.
+                                    </p>
+                                </div>
+                                <a
+                                    href="https://credex.rocks"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="bg-emerald-500 hover:bg-emerald-400 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-200 text-sm whitespace-nowrap"
+                                >
+                                    Book a Credex Consultation →
+                                </a>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Per-tool Breakdown */}
+                    {result && (
+                        <div className="mt-2 space-y-4">
+
+                            <h3 className="text-xl font-bold text-white">
+                                Per-tool Breakdown
+                            </h3>
+
+                            {result.toolResults.map((toolResult, index) => (
+                                <div
+                                    key={index}
+                                    className="bg-gray-900/70 border border-gray-800 rounded-2xl p-5"
+                                >
+
+                                    {/* Tool header */}
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div>
+                                            <h4 className="text-lg font-bold text-white">
+                                                {toolResult.toolName}
+                                                <span className="text-gray-500 text-sm font-normal ml-2 capitalize">
+                                                    {toolResult.plan} plan
+                                                </span>
+                                            </h4>
+                                            <p className="text-gray-500 text-xs mt-0.5">
+                                                Current spend: ${toolResult.currentSpend}/mo
+                                            </p>
+                                        </div>
+                                        <span className={`px-3 py-1 rounded-full text-sm font-semibold ${toolResult.saving > 0
+                                            ? "bg-red-500/10 text-red-400 border border-red-500/20"
+                                            : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                                            }`}>
+                                            {toolResult.saving > 0
+                                                ? `Save $${toolResult.saving}/mo`
+                                                : "✓ Optimised"}
+                                        </span>
+                                    </div>
+
+                                    {/* Recommendation */}
+                                    <div className="mb-3">
+                                        <p className="text-xs text-gray-500 mb-1 uppercase tracking-wide">
+                                            Recommendation
+                                        </p>
+                                        <p className="text-white font-semibold">
+                                            {toolResult.recommendation}
+                                        </p>
+                                    </div>
+
+                                    {/* Reason */}
+                                    <div className="mb-3">
+                                        <p className="text-xs text-gray-500 mb-1 uppercase tracking-wide">
+                                            Reason
+                                        </p>
+                                        <p className="text-gray-300 text-sm leading-relaxed">
+                                            {toolResult.reason}
+                                        </p>
+                                    </div>
+
+                                    {/* Issues */}
+                                    {toolResult.issues.length > 0 && (
+                                        <div className="mt-3 space-y-2">
+                                            {toolResult.issues.map((issue, i) => (
+                                                <div
+                                                    key={i}
+                                                    className="bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-2 text-sm text-red-300"
+                                                >
+                                                    ⚠ {issue}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {/* Strengths */}
+                                    {toolResult.strengths.length > 0 && (
+                                        <div className="mt-3 space-y-2">
+                                            {toolResult.strengths.map((strength, i) => (
+                                                <div
+                                                    key={i}
+                                                    className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-2 text-sm text-emerald-300"
+                                                >
+                                                    ✓ {strength}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                </div>
+                            ))}
+
+                            {/* Overlap warning */}
+                            {result.overlapWarning && (
+                                <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-2xl px-5 py-4 text-yellow-300 text-sm">
+                                    ⚠ {result.overlapWarning}
+                                </div>
+                            )}
+
+                        </div>
+                    )}
+
+                    {/* AI Summary */}
                     {summary && (
-
                         <div className="mt-6 bg-gray-900/70 backdrop-blur-xl border border-gray-800 rounded-3xl p-6 text-white animate-in fade-in duration-500">
-
                             <h3 className="text-xl font-semibold mb-3 text-emerald-400">
                                 AI Summary
                             </h3>
-
                             <div className="bg-black/20 border border-gray-800 rounded-2xl p-5">
-
                                 <p className="text-gray-300 leading-relaxed">
                                     {summary}
                                 </p>
+                            </div>
+                        </div>
+                    )}
 
+                    {result && !leadSubmitted && (
+                        <div className="mt-6 bg-gray-900/70 backdrop-blur-xl border border-gray-800 rounded-3xl p-6 text-white">
+
+                            <h3 className="text-xl font-semibold mb-1 text-white">
+                                Get your full report
+                            </h3>
+                            <p className="text-gray-400 text-sm mb-6">
+                                Enter your email to save this audit and get a shareable link.
+                                {result.totalSavings > 500 && " We'll also have a Credex advisor reach out about your savings opportunity."}
+                            </p>
+
+                            <form onSubmit={handleLeadSubmit} className="flex flex-col gap-4">
+
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-sm text-gray-400">Email *</label>
+                                    <input
+                                        type="email"
+                                        required
+                                        value={leadData.email}
+                                        onChange={(e) => setLeadData({ ...leadData, email: e.target.value })}
+                                        placeholder="you@company.com"
+                                        className="bg-black/40 text-white border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder-gray-600"
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-sm text-gray-400">Company (optional)</label>
+                                        <input
+                                            type="text"
+                                            value={leadData.companyName}
+                                            onChange={(e) => setLeadData({ ...leadData, companyName: e.target.value })}
+                                            placeholder="Acme Inc."
+                                            className="bg-black/40 text-white border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder-gray-600"
+                                        />
+                                    </div>
+
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-sm text-gray-400">Role (optional)</label>
+                                        <input
+                                            type="text"
+                                            value={leadData.role}
+                                            onChange={(e) => setLeadData({ ...leadData, role: e.target.value })}
+                                            placeholder="CTO, Founder..."
+                                            className="bg-black/40 text-white border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder-gray-600"
+                                        />
+                                    </div>
+
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    className="bg-emerald-500 hover:bg-emerald-400 text-white font-semibold py-3 rounded-xl transition-all duration-200"
+                                >
+                                    Save & Get Shareable Link →
+                                </button>
+
+                                <p className="text-gray-600 text-xs text-center">
+                                    No spam. Your data is never sold.
+                                </p>
+
+                            </form>
+
+                        </div>
+                    )}
+
+                    {/* Shareable link — shown after email is submitted */}
+                    {result && leadSubmitted && auditId && (
+                        <div className="mt-6 bg-emerald-500/10 border border-emerald-500/30 rounded-3xl p-6 text-white">
+
+                            <h3 className="text-xl font-semibold mb-1 text-emerald-400">
+                                ✓ Your audit is saved
+                            </h3>
+                            <p className="text-gray-400 text-sm mb-4">
+                                Share this link with your team or bookmark it for later.
+                            </p>
+
+                            <div className="flex items-center gap-3">
+                                <input
+                                    type="text"
+                                    readOnly
+                                    value={`${window.location.origin}/audit/${auditId}`}
+                                    className="flex-1 bg-black/40 text-gray-300 border border-gray-700 rounded-xl px-4 py-3 text-sm focus:outline-none"
+                                />
+                                <button
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(
+                                            `${window.location.origin}/audit/${auditId}`
+                                        );
+                                        alert("Link copied!");
+                                    }}
+                                    className="bg-emerald-500 hover:bg-emerald-400 text-white font-semibold px-5 py-3 rounded-xl transition-all text-sm whitespace-nowrap"
+                                >
+                                    Copy Link
+                                </button>
                             </div>
 
                         </div>
-
                     )}
 
                     {/* Reset */}
                     {result && (
-
                         <button
                             onClick={handleReset}
                             className="mt-6 w-full border border-gray-700 text-gray-300 hover:bg-gray-800 transition-all duration-300 py-4 rounded-2xl"
                         >
                             Start New Audit
                         </button>
-
                     )}
 
                 </div>
 
             </section>
 
-        </main>
+        </main >
     );
 }
