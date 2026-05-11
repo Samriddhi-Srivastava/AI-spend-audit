@@ -188,3 +188,65 @@
 - Add export/report generation feature
 - Prepare application for deployment
 - Continue aligning the project with company brief requirements
+
+--------
+
+## Day 5 — 10-05-2026
+**Hours worked:** 7-8
+
+### What I did:
+- Rewrote the audit engine from scratch with a cleaner, more defensible architecture
+- Refactored `calculateAudit` to return a per-tool `toolResults` array instead of a single merged recommendation
+- Added three audit checks per tool:
+  - overpayment detection (actual spend vs official pricing)
+  - plan downgrade opportunities based on team size and use case
+  - wrong-tool-for-use-case detection with alternative suggestions
+- Fixed a critical bug where `suggestedPlan` was used without being declared, causing silent crashes
+- Updated pricing data with corrected figures:
+  - Claude Team corrected to $30/user/mo
+  - Cursor Pro+ corrected to $60/mo
+- Added `annualSavings` calculation (`totalSavings × 12`) to audit result
+- Added `overlapWarning` for users running multiple tools with the same use case
+- Replaced `generateSummary` with `generateFallbackSummary` for cleaner fallback handling
+- Rewrote the results UI to loop over `toolResults` and show one card per tool with:
+  - current spend
+  - recommendation
+  - reason
+  - issues
+  - strengths
+- Fixed duplicate Optimization Score card appearing twice in results
+- Added Credex CTA banner that appears only when total savings exceed $500/mo
+- Added annual savings display alongside monthly savings in the hero stats
+- Upgraded `handleSubmit` to `async` and wired it to the Anthropic API with try/catch fallback
+- Created `app/api/summary/route.js` for AI-generated summaries via Anthropic API
+- Set up Supabase as the backend database:
+  - created `audits` table with RLS policies
+  - created `lib/supabase.js` as the shared client
+- Built `app/api/save-audit/route.js` to save audit results, tools, summary, and lead data
+- Built lead capture form that appears after results — collects email, company name, and role
+- Implemented shareable audit URLs — each audit saved with a UUID at `/audit/[id]`
+- Built `app/audit/[id]/page.js` as a public server-rendered shareable page
+- Added Open Graph and Twitter card metadata to shareable page for clean link previews
+- Fixed Next.js 15 `params` async issue in both `generateMetadata` and `SharedAuditPage`
+- Added all Supabase environment variables to Vercel and redeployed successfully
+
+### What I learned:
+- How to structure a rule-based audit engine with per-item breakdowns instead of a single merged result
+- How to set up Supabase with RLS policies for a public-facing tool with no login required
+- How Next.js 15 changed `params` to a Promise — must be awaited in server components
+- How Vercel requires environment variables to be added separately from `.env.local`
+- Importance of testing the full user flow end-to-end in incognito to catch rendering issues
+- How Open Graph metadata enables clean link previews for shareable URLs
+
+### Blockers / what I'm stuck on:
+- Anthropic API credits not yet received — AI summary currently using fallback template
+- Transactional email confirmation after lead capture not yet implemented
+
+### Plan for next day:
+- Set up Resend for transactional email on lead capture
+- Write 5 audit engine tests and TESTS.md
+- Set up GitHub Actions CI workflow
+- Start writing PRICING_DATA.md with cited vendor URLs
+- Begin GTM.md and ECONOMICS.md entrepreneurial files
+
+-------
