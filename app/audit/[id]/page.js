@@ -9,7 +9,9 @@ export async function generateMetadata({ params }) {
     const { id } = await params;
 
     if (!supabase) {
-        return;
+        return NextResponse.json({
+            error: "Supabase not configured"
+        });
     }
     const { data } = await supabase
         .from("audits")

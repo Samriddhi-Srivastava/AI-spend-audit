@@ -1,20 +1,37 @@
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 
-const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-);
+const supabaseUrl =
+    process.env.NEXT_PUBLIC_SUPABASE_URL;
 
-const resend = process.env.RESEND_API_KEY
-    ? new Resend(process.env.RESEND_API_KEY)
-    : null;
+const supabaseAnonKey =
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+const supabase =
+    supabaseUrl && supabaseAnonKey
+        ? createClient(
+            supabaseUrl,
+            supabaseAnonKey
+        )
+        : null;
+
+const resend =
+    process.env.RESEND_API_KEY
+        ? new Resend(
+            process.env.RESEND_API_KEY
+        )
+        : null;
 
 export async function POST(request) {
     try {
         const { tools, result, summary, email, companyName, role } = await request.json();
         if (!supabase) {
-            return;
+            return Response.json(
+                {
+                    error: "Supabase not configured"
+                },
+                { status: 500 }
+            );
         }
         // Save audit to Supabase
         const { data, error } = await supabase
@@ -36,6 +53,12 @@ export async function POST(request) {
         }
 
         const auditId = data.id;
+
+        if (!resend) {
+            return Response.json({
+                error: "Email service unavailable"
+            });
+        }
 
         // Send email inline (no inter-route fetch — that pattern fails on Vercel)
         if (email && resend) {
