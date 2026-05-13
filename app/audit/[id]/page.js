@@ -8,6 +8,9 @@ const supabase = createClient(
 export async function generateMetadata({ params }) {
     const { id } = await params;
 
+    if (!supabase) {
+        return;
+    }
     const { data } = await supabase
         .from("audits")
         .select("result, summary")

@@ -13,7 +13,9 @@ const resend = process.env.RESEND_API_KEY
 export async function POST(request) {
     try {
         const { tools, result, summary, email, companyName, role } = await request.json();
-
+        if (!supabase) {
+            return;
+        }
         // Save audit to Supabase
         const { data, error } = await supabase
             .from("audits")
