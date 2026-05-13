@@ -250,3 +250,55 @@
 - Begin GTM.md and ECONOMICS.md entrepreneurial files
 
 -------
+
+## Day 6 — 10-05-2026
+**Hours worked:** 0
+
+### Reason: 
+- I had my semester final exam due to which I couldn't work on the project. 
+
+--------
+
+## Day 7 — 13-05-2026
+**Hours worked:** 6-7
+
+### What I did:
+- Debugged the Notify Me button on the "Spending Well" CTA — the original `onClick` only fired an `alert` and never called any API, so no email or audit was ever saved
+- Wired Notify Me to reuse the existing lead capture pipeline by calling `handleLeadSubmit` so it saves the audit and triggers the transactional email
+- Restored the Tailwind `className` on the Notify Me button after an earlier refactor stripped its styling
+- Set up Resend for transactional email on lead capture:
+  - installed `resend` and created `app/api/send-email/route.js` as a standalone endpoint
+  - inlined the Resend call directly into `/api/save-audit` after discovering the inter-route fetch pattern fails on serverless
+  - added `RESEND_API_KEY` to `.env.local` and verified it loads on dev server restart
+- Tested email delivery end-to-end — first sends showed status 200 in Resend logs but never arrived; root cause was Resend's sandbox restriction on `onboarding@resend.dev`
+- Confirmed email pipeline works after testing with the Resend-registered email address
+- Fixed multiple smaller bugs in `app/audit-form/page.js`:
+  - removed direct `window.location.origin` reference in JSX that broke server-side rendering on first paint
+  - corrected `tabIndex="-1"` string to `tabIndex={-1}` number for the honeypot field
+  - fixed invalid HTML nesting in the empty-state card where `<div>` and `<p>` were placed inside an `<h3>`
+  - wrapped `JSON.parse` of `localStorage.getItem("tools")` in try/catch to avoid crashing on corrupted storage
+- Attempted to ship a PDF download feature for completed audits using `html2pdf.js`:
+  - first version with `display: none` produced blank PDFs because html2canvas cannot render hidden elements
+  - second version with `position: absolute; left: -9999px` still produced blank PDFs
+  - third version added explicit `color: #000` on every element after realizing `<main className="text-white">` was leaking white text color into the PDF
+  - fourth version built the PDF element dynamically and appended it to `document.body` at capture time, fully isolated from Tailwind ancestors
+  - capture pipeline ran end-to-end with step-by-step logs confirming each stage, but the real report content still produced a blank PDF
+- Decided to remove the PDF feature rather than spend more time debugging — the shareable audit URL already covers the save-and-share use case
+- Uninstalled `html2pdf.js` and removed all PDF-related code from `app/audit-form/page.js`
+
+### What I learned:
+- Resend's `onboarding@resend.dev` sandbox sender silently drops mail to any address other than the Resend account owner's — the API returns 200 and the dashboard shows "delivered" but the recipient never sees it
+- Inter-route `fetch` between Next.js API routes is fragile on Vercel because each route is a separate serverless function, so `new URL(path, request.url)` can resolve incorrectly behind proxies
+- `.env.local` is only read at dev server startup, so adding a new variable requires a full restart and not just a file save
+- `html2canvas` has many silent failure modes including `display: none`, elements positioned far off-screen, ancestors with Tailwind v4 `oklch()` colors, white-on-white from inherited `color`, and tables with `borderCollapse: collapse` — all producing blank output without console errors
+- Pasting API keys into chat or commits is a real risk, so rotated both Supabase anon key and Resend API key after accidentally exposing them during a debugging session
+- When a non-critical feature consumes disproportionate time, removing it is a legitimate engineering decision — the shareable URL serves the same purpose without the rendering risk
+
+### Blockers / what I'm stuck on:
+- Anthropic API credits still not received — AI summary continues to use the fallback template
+- Resend domain verification not yet done — production sends limited to the Resend account email until DNS records are added on a verified domain
+
+### Plan for next day:
+- Verify a domain in Resend and update the `from:` address so emails can go to any recipient
+
+-------

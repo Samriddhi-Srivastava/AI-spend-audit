@@ -1,14 +1,20 @@
 import Anthropic from "@anthropic-ai/sdk";
 
-const client = new Anthropic({
-    apiKey: process.env.ANTHROPIC_API_KEY,
-});
+const client = process.env.ANTHROPIC_API_KEY
+    ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+    : null;
 
 export async function POST(request) {
 
     try {
 
         const { auditResult, tools } = await request.json();
+
+        // If no API key, return empty — frontend will use fallback
+        if (!client) {
+            console.log("⚠️  No Anthropic API key — using fallback summary");
+            return Response.json({ summary: null });
+        }
 
         const toolSummary = auditResult.toolResults
             .map(t =>
@@ -42,17 +48,13 @@ Write the summary now:`;
         });
 
         const summary = message.content[0].text;
-
         return Response.json({ summary });
 
     } catch (error) {
 
-        console.error("Anthropic API error:", error);
-
-        return Response.json(
-            { error: "Failed to generate summary" },
-            { status: 500 }
-        );
+        console.error("❌ Anthropic API error:", error.message);
+        // Return null so frontend uses fallback — don't fail the whole request
+        return Response.json({ summary: null });
 
     }
 }
