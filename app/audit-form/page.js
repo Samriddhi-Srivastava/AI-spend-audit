@@ -440,11 +440,11 @@ export default function AuditForm() {
                                 <div className="flex items-start justify-between gap-4 flex-wrap">
                                     <div>
                                         <h4 className="text-blue-400 font-bold text-lg mb-1">
-                                            ✓ You're spending well
+                                            ✓ You are spending well
                                         </h4>
                                         <p className="text-gray-400 text-sm">
                                             Your AI stack is optimized for your team size and use cases.
-                                            We'll notify you when new optimizations apply.
+                                            We will notify you when new optimizations apply.
                                         </p>
                                     </div>
                                     <button
