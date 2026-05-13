@@ -27,9 +27,41 @@ export default function AuditForm() {
         anthropicapi: { name: "Anthropic API", color: "from-amber-300 to-amber-500", short: "AA" }
     };
 
-    const [tools, setTools] = useState([
-        { tool: "", plan: "", monthlySpend: "", users: "", useCase: "" }
-    ]);
+    const [tools, setTools] = useState(() => {
+
+        if (typeof window !== "undefined") {
+
+            const saved = localStorage.getItem("tools");
+
+            if (saved) {
+
+                const parsedData = JSON.parse(saved);
+
+                if (Array.isArray(parsedData)) {
+                    return parsedData;
+                }
+            }
+        }
+
+        return [
+            {
+                tool: "",
+                plan: "",
+                monthlySpend: "",
+                users: "",
+                useCase: "",
+            }
+        ];
+    });
+
+    useEffect(() => {
+
+        localStorage.setItem(
+            "tools",
+            JSON.stringify(tools)
+        );
+
+    }, [tools]);
 
     const [result, setResult] = useState(null);
     const [summary, setSummary] = useState("");
@@ -38,25 +70,8 @@ export default function AuditForm() {
     const [leadSubmitted, setLeadSubmitted] = useState(false);
     const [leadData, setLeadData] = useState({ email: "", companyName: "", role: "" });
     const [honeypot, setHoneypot] = useState("");
-    const [origin, setOrigin] = useState("");
 
-    useEffect(() => {
-        setOrigin(window.location.origin);
 
-        const saved = localStorage.getItem("tools");
-        if (saved) {
-            try {
-                const parsedData = JSON.parse(saved);
-                if (Array.isArray(parsedData)) {
-                    setTools(parsedData);
-                } else {
-                    localStorage.removeItem("tools");
-                }
-            } catch {
-                localStorage.removeItem("tools");
-            }
-        }
-    }, []);
 
     useEffect(() => {
         localStorage.setItem("tools", JSON.stringify(tools));
