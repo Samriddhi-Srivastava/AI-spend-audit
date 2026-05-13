@@ -302,3 +302,22 @@
 - Verify a domain in Resend and update the `from:` address so emails can go to any recipient
 
 -------
+
+### CI / Build Failure Debugging
+
+I encountered a production build failure during GitHub Actions CI while running `next build`.
+
+Error:
+`supabaseUrl is required`
+
+The failure happened during the static build step for the dynamic route:
+`/audit/[id]`
+
+Root cause:
+The Supabase client was being initialized at the top level of `save-audit/route.js` using environment variables:
+
+```js
+const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
