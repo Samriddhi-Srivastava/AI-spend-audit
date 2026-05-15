@@ -12,8 +12,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "AI Subscription Auditor",
-  description: "Audit your AI subscriptions and save money",
+  title: "AI Spend Analyser",
+  description: "Analyse your AI subscriptions and save money",
 };
 
 export default function RootLayout({ children }) {

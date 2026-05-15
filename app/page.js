@@ -12,7 +12,7 @@ export default function Home() {
       <nav className="relative z-10 max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
 
         <h1 className="text-2xl font-bold tracking-wide">
-          AI <span className="text-emerald-400">Spend Auditor</span>
+          AI <span className="text-emerald-400">Spend Analyser</span>
         </h1>
 
         <Link
